@@ -4,7 +4,7 @@ setup(
     name='src',
     packages=find_packages(),
     version='0.1.0',
-    description="It's an E2E MLOPS Project on Text Classification",
+    description='This is a sentiment analysis mlops project',
     author='Parth Agarwal',
     license='MIT',
 )
