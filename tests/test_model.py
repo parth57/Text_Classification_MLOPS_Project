@@ -1,8 +1,7 @@
 # load test + signature test + performance test
-
 import unittest
 import mlflow
-import os
+import os, httpx, certifi
 import pandas as pd
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import pickle
@@ -12,6 +11,18 @@ class TestModelLoading(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Set up DagsHub credentials for MLflow tracking
+        os.environ["SSL_CERT_FILE"] = certifi.where()
+        os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
+        os.environ["MLFLOW_TRACKING_INSECURE_TLS"] = "true"  # disable SSL verify
+
+        os.environ["MLFLOW_TRACKING_REQUESTS_VERIFY"] = "false"
+
+        orig_init = httpx.Client.__init__
+        def patched_init(self, *args, **kwargs):
+            kwargs["verify"] = False
+            return orig_init(self, *args, **kwargs)
+
+        httpx.Client.__init__ = patched_init
         dagshub_token = os.getenv("CAPSTONE_TEST")
         if not dagshub_token:
             raise EnvironmentError("CAPSTONE_TEST environment variable is not set")
@@ -20,14 +31,14 @@ class TestModelLoading(unittest.TestCase):
         os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 
         dagshub_url = "https://dagshub.com"
-        repo_owner = "vikashdas770"
-        repo_name = "YT-Capstone-Project"
+        repo_owner = "parth57"
+        repo_name = "Text_Classification_MLOPS_Project"
 
         # Set up MLflow tracking URI
         mlflow.set_tracking_uri(f'{dagshub_url}/{repo_owner}/{repo_name}.mlflow')
 
         # Load the new model from MLflow model registry
-        cls.new_model_name = "my_model"
+        cls.new_model_name = "sentiment_model"
         cls.new_model_version = cls.get_latest_model_version(cls.new_model_name)
         cls.new_model_uri = f'models:/{cls.new_model_name}/{cls.new_model_version}'
         cls.new_model = mlflow.pyfunc.load_model(cls.new_model_uri)

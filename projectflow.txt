@@ -88,7 +88,8 @@
 29. pip install flask and run the app (dvc push - to push data to S3)
 
 30. pip freeze > requirements.txt
-31. Add .github/workflows/ci.yaml file
+31. Add .github/workflows/ci.yaml file: This contains all the pipline steps of CI, eventually it runs the dvc rero to run the pipeline
+
 
 32. Create key token on Dagshub for auth: Go to dagshub repo > Your settings > Tokens > Generate new token
     >> Please make sure to save token << >> capstone_test: 54b1d67648a9b1267ef906fsdfsd8b292f779f0<<
@@ -96,3 +97,21 @@
 
 
 31. Add dir "tests"&"scripts" and files within. This will contain our test related scripts for CI.
+    • In scripts dir, promote_mode.py first archive any model in production in mlflow - > Then fetches the latest version of model
+        in staging and then promotes to the production env. This is all done using mlfow's in-built functions. Needless to mention
+        only the accepted model after experimenting will be pushed to staging env.
+    • Inside tests dir, test_flask_app.py first tests the home route by checking if the response code after hitting the API is 200 or not.
+      Also, it checks the predict route-> it checks whether response code after hitting the predict button is 200 or not, also it checks
+        whether the response is either equal to Positive/Negative.
+    • Inside tests dir, test_model.py first sets up DagsHub credentials for MLflow tracking, then inside your mlflow model registry
+        loads the latest verison of the model - > Loads the vectorizer.pkl and the test data present in data/processed.
+        After this it runs a few test before this model is pushed to staging env in mlflow (it has to exceed some accuracy etc thresholds)
+            • Create a dummy input for the model based on expected input shape
+            • Predict using the new model to verify the input and output shapes
+                • Verify the input shape
+                • Verify the output shape (assuming binary classification with a single output)
+            • Test Model Performance
+                • Calculate performance metrics for the new model (Acuracy, F1 Score, Precision, Recall)
+                • Define expected thresholds for the performance metrics (Can be changed based on the current state of performance of your model)
+                • The current metrics score should be greater than the thresholds defined above, only then it would be pushed to staging in mlflow
+        Note: All these unit tests are done using the unittest library

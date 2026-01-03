@@ -28,6 +28,7 @@ def patched_init(self, *args, **kwargs):
 
 httpx.Client.__init__ = patched_init
 
+
 dagshub_token = os.getenv("CAPSTONE_TEST")
 if not dagshub_token:
     raise EnvironmentError("CAPSTONE_TEST environment variable is not set")
