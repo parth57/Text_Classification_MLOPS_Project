@@ -115,3 +115,32 @@
                 • Define expected thresholds for the performance metrics (Can be changed based on the current state of performance of your model)
                 • The current metrics score should be greater than the thresholds defined above, only then it would be pushed to staging in mlflow
         Note: All these unit tests are done using the unittest library
+    • Now if you try to run the app.py locally, it will fetch the model in production from mlflow model registry to do the prediction
+        and you will see the output in /predict route after submitting your input text in your application UI.
+
+>>>>> Moving to Docker <<<<<
+32. pip install pipreqs (This is to create a requirements.txt file)
+33. cd flask_app & do "pipreqs . --force" (This creates the requirements.txt file and overwrites if there's an existing one using --force)
+34. Add dockerfile and start docker-desktop in background
+    Also before proceeding make sure: [switch the mlflow server setup to param version (user defined mlfow uri and dagshub config), 
+    change cmd on dockerfile to run it locally]
+35. go to root dir and: "docker build -t text_class:latest ."
+36. Try running the image: "docker run -p 8888:5000 text_class:latest"
+    - This run will give 'OSError: capstone_test environment variable is not set'...obviously
+    - alternate: docker run -p 8888:5002 -e CAPSTONE_TEST='f39dbdc19cb926e11eca43825499eb7cb43d25bd' text_class:latest
+        • For this just make sure you are using the prod params in the "model_evaluation, model register_model and app script"
+        • '-e' sets the environment varibale during run time
+    - docker push your_user/text_class:latest (optional)
+    - optional: try to delete image locally and pull it from dockerhub and run (optional)
+
+37. Setup aws services for below secrets and variables: Using "aws configure" command
+	AWS_ACCESS_KEY_ID
+	AWS_SECRET_ACCESS_KEY
+	AWS_REGION
+	ECR_REPOSITORY (name: sentiment_analysis)
+    AWS_ACCOUNT_ID (396608771834)
+   (Also add this permission to the IAM user: AmazonEC2ContainerRegistryFullAccess)
+
+   Once this is done, add these credentials in Github Secret Variables: Go to settings->Secrets and variables->Actions
+
+38. Execute CICD pipeline till the stage where we build and push image to ECR.
