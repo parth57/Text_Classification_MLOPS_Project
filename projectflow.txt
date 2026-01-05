@@ -207,5 +207,5 @@ kubectl get svc (svc: service)
 48. Once the LoadBalancer service is up, get the external IP:
 kubectl get svc flask-app-service
 
-49. Try externa-ip:5000 directly on url or on terminal : curl http://external-ip:5000
-curl a983b596774a64558983d69e869fb92a-1267822012.us-east-1.elb.amazonaws.com:5002
+49. Try externa-ip:5000 directly on url or on terminal : curl http://external-ip:5002
+curl http://a983b596774a64558983d69e869fb92a-1267822012.us-east-1.elb.amazonaws.com:5002
