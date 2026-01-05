@@ -143,4 +143,68 @@
 
    Once this is done, add these credentials in Github Secret Variables: Go to settings->Secrets and variables->Actions
 
-38. Execute CICD pipeline till the stage where we build and push image to ECR.
+38. Execute CICD pipeline till the stage where we build and push image to ECR
+    • This is done to push the docker image built to ECR
+    • We faced an error while logging into Amazon ECR beacuse of a conflicting policy which was causing this issue i.e.
+        denying the access. Hence we deleted this policy and again created aws secred and aws secret access key. Post this
+        we updated the same in github secrets variables. After this CICD Pipeline ran as expected.
+
+----------------------------------------------------------------------------------
+*********Setup required before moving to EKS deployment*********
+----------------------------------------------------------------------------------
+* Verify AWS CLI: aws --version
+* Verify kubectl: kubectl version --client
+* Verify eksctl: eksctl version
+----------------------------------------------------------------------------------
+
+39. Create an EKS cluster:
+    eksctl create cluster --name flask-app-cluster --region us-east-1 --nodegroup-name flask-app-nodes --node-type t3.small --nodes 1 --nodes-min 1 --nodes-max 1 --managed
+
+    command understanding: This creates an EKS cluster with name "flask-app-cluster"->specify region->specify nodegroup named 
+                            "flask-app-nodes" -> specify node type (EC2 servers) present in AWS (eg: t3 small based on size of image)
+                            -> ask for total nodes->specify min/max nodes -> 
+                            managed: AWS handles the load balancing or handles your eks cluster
+
+    Note: eksctl creates and manages the EKS infrastructure, while kubectl operates the Kubernetes cluster that runs on that
+             infrastructure. Eksctl mnaages EKS clusters, Node groups (EC2 / Fargate), IAM roles & policies, Cluster upgrades.
+             kubectl is the standard Kubernetes client which manages Pods, Deployments, Deployments, Scaling & rollouts
+
+    • AWS Security Token Service (AWS STS) is a web service that allows you to request temporary, limited-privilege security 
+        credentials for users or applications within your AWS environment
+
+40. Update kubectl Config(Once the cluster is created, eksctl will automatically update your kubectl config file. However, you can verify and set it manually using:)
+aws eks --region us-east-1 update-kubeconfig --name flask-app-cluster (This ensures your kubectl is pointing to the correct cluster.)
+
+41. Check EKS Cluster Configuration Ensure you can access your EKS cluster by running
+    aws eks list-clusters
+
+42. Delete cluster(optional):
+    eksctl delete cluster --name flask-app-cluster --region us-east-1
+
+    Also, verify cluster deletion:
+    eksctl get cluster --region us-east-1
+
+43. Verify the cluster status:
+    aws eks --region us-east-1 describe-cluster --name flask-app-cluster --query "cluster.status"
+
+
+44. Check cluster connectivity:
+kubectl get nodes
+
+45. Check the namespaces:
+kubectl get namespaces
+ 
+46. Verify the deployment:
+kubectl get pods
+kubectl get svc (svc: service)
+
+47. Deploy the app on EKS via CICD pipeline 
+  >> edit ci.yaml, deployment.yaml, dockerfile
+  >> Also edit the security group for nodes and edit inbound rule for 5002 port
+
+
+48. Once the LoadBalancer service is up, get the external IP:
+kubectl get svc flask-app-service
+
+49. Try externa-ip:5000 directly on url or on terminal : curl http://external-ip:5000
+curl http://a6bf6255d5f61470c9782b8955c98271-1409247973.us-east-1.elb.amazonaws.com:5000

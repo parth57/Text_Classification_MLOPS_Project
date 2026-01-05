@@ -22,7 +22,7 @@ EOF
 EXPOSE 5002
 
 #local
-CMD ["python", "app.py"]  
+# CMD ["python", "app.py"]  
 
 #Prod
-# CMD ["gunicorn", "--bind", "0.0.0.0:5002", "--timeout", "120", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5002", "--timeout", "120", "app:app"]
