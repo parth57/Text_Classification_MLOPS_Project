@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: flask-app
-        image: 396608771834.dkr.ecr.us-east-1.amazonaws.com/sentiment_analysis
+        image: 396608771834.dkr.ecr.us-east-1.amazonaws.com/flask-app
         # 020866158197.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
         ports:
         - containerPort: 5002
