@@ -47,4 +47,4 @@ spec:
     - name: http
       protocol: TCP
       port: 5002
-      targetPort: 5002% 
+      targetPort: 5002
